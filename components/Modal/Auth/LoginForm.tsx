@@ -1,13 +1,14 @@
 import { authModalStateAtom } from "@/atoms/authModalAtom";
 import { auth } from "@/firebase/clientApp";
 import { FIREBASE_ERRORS } from "@/firebase/errors";
-import { Button, Flex, Input, Text } from "@chakra-ui/react";
+import { Button, Flex, Input, Text, useToast } from "@chakra-ui/react";
 import { FC, useState, ChangeEvent, FormEvent } from "react";
 import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { useSetRecoilState } from "recoil";
 
 const LoginForm: FC = () => {
   const setAuthModalState = useSetRecoilState(authModalStateAtom);
+  const toast = useToast();
   const [signInWithEmailAndPassword, user, loading, error] = useSignInWithEmailAndPassword(auth);
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [formError, setFormError] = useState<string>("");
@@ -16,9 +17,16 @@ const LoginForm: FC = () => {
     e.preventDefault();
     setFormError("");
     const userCredential = await signInWithEmailAndPassword(loginForm.email, loginForm.password);
-    // if (!userCredential) {
-    //   return setFormError("Something went wrong");
-    // }
+    if (userCredential?.user.uid) {
+      setAuthModalState((prevValue) => {
+        return { ...prevValue, open: false };
+      });
+    } else {
+      toast({
+        title: "Something went wrong",
+        status: "error",
+      });
+    }
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -66,6 +74,20 @@ const LoginForm: FC = () => {
         <Button isLoading={loading} type="submit" height="36px" marginTop="8px">
           Log In
         </Button>
+        <Flex fontSize="9pt" gap="8px" justifyContent="center">
+          <Text>Forgot your password ?</Text>
+          <Text
+            color="blue.500"
+            cursor="pointer"
+            onClick={() => {
+              setAuthModalState((prevValue) => {
+                return { ...prevValue, view: "resetPassword" };
+              });
+            }}
+          >
+            Reset
+          </Text>
+        </Flex>
         <Flex fontSize="9pt" gap="8px" justifyContent="center">
           <Text>New here ?</Text>
           <Text
