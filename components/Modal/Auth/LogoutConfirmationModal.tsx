@@ -1,12 +1,13 @@
+import { communityStateAtom } from "@/atoms/communitiesAtom";
 import logoutConfirmationModalAtom from "@/atoms/logoutConfirmationModalAtom";
 import { auth } from "@/firebase/clientApp";
 import { Button, Flex, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from "@chakra-ui/react";
 import { signOut } from "firebase/auth";
-import { title } from "process";
 import { FC } from "react";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useResetRecoilState } from "recoil";
 
 const LogoutConfirmationModal: FC<LogoutConfirmationModalProps> = () => {
+  const resetCommunityState = useResetRecoilState(communityStateAtom);
   const [logoutConfirmationModalState, setLogoutConfirmationModalState] = useRecoilState(logoutConfirmationModalAtom);
 
   const onClose = () => {
@@ -17,6 +18,7 @@ const LogoutConfirmationModal: FC<LogoutConfirmationModalProps> = () => {
 
   const onLogoutClicked = () => {
     signOut(auth);
+    resetCommunityState();
     onClose();
   };
 
@@ -27,8 +29,12 @@ const LogoutConfirmationModal: FC<LogoutConfirmationModalProps> = () => {
         <ModalHeader textAlign="center">Are you sure you would like to logout ?</ModalHeader>
         <ModalCloseButton />
         <ModalBody display="flex" flexDirection="row" alignItems="center" justifyContent="space-between">
-          <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={onLogoutClicked}>Yes</Button>
+          <Button height="36px" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button height="36px" onClick={onLogoutClicked}>
+            Yes
+          </Button>
         </ModalBody>
       </ModalContent>
     </Modal>
