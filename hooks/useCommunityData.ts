@@ -1,5 +1,5 @@
 import { authModalStateAtom } from "@/atoms/authModalAtom";
-import { communityStateAtom, CommunityState, CommunityModel, CommunitySnippetModel } from "@/atoms/communitiesAtom";
+import { communityStateAtom, CommunityModel, CommunitySnippetModel } from "@/atoms/communitiesAtom";
 import { auth, firestore } from "@/firebase/clientApp";
 import { useToast } from "@chakra-ui/react";
 import { collection, doc, getDocs, increment, writeBatch } from "firebase/firestore";

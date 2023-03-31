@@ -1,4 +1,5 @@
 import { CommunityModel } from "@/atoms/communitiesAtom";
+import CreatePostLink from "@/components/community/CreatePostLink";
 import PageContent from "@/components/Layout/PageContent";
 import { firestore } from "@/firebase/clientApp";
 import { doc, getDoc } from "firebase/firestore";
@@ -18,10 +19,7 @@ const CommunityPage: FC<CommunityPageProps> = ({ community }) => {
       <CommunityHeader community={community} />
       <PageContent>
         <>
-          <div>Left Side</div>
-          <div>Left Side</div>
-          <div>Left Side</div>
-          <div>Left Side</div>
+          <CreatePostLink />
         </>
         <>Right Side</>
       </PageContent>
