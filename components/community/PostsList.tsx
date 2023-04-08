@@ -1,14 +1,14 @@
-import { CommunityModel } from "@/atoms/communitiesAtom";
-import { auth, firestore } from "@/firebase/clientApp";
 import usePostsList from "@/hooks/usePostsList";
-import { Stack } from "@chakra-ui/react";
-import { FC } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
 import PostLoader from "../posts/PostLoader";
 import PostListItem from "./PostListItem";
+import { CommunityModel } from "@/atoms/communitiesAtom";
+import { auth } from "@/firebase/clientApp";
+import { Stack } from "@chakra-ui/react";
+import { FC, useMemo } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 const PostsList: FC<PostsList> = ({ community }) => {
-  const { postState, setPostState, onDeletePost, onSelectPost, onVote, postsQuery } = usePostsList(community);
+  const { postState, onDeletePost, onSelectPost, onVote, postsQuery } = usePostsList(community);
   const [user] = useAuthState(auth);
 
   return (
@@ -25,6 +25,7 @@ const PostsList: FC<PostsList> = ({ community }) => {
                 onSelect={onSelectPost}
                 onVote={onVote}
                 post={post}
+                userVoteValue={postState.postVotes.find((vote) => vote.postID === post.id)?.voteValue}
                 userIsCreator={user?.uid === post.creatorID}
               />
             );

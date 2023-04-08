@@ -1,6 +1,6 @@
+import useCommunityData from "@/hooks/useCommunityData";
 import { CommunityModel } from "@/atoms/communitiesAtom";
 import { pageContentMaxWidth } from "@/constants";
-import useCommunityData from "@/hooks/useCommunityData";
 import { Box, Button, Flex, Icon, Image, Text } from "@chakra-ui/react";
 import { FC } from "react";
 import { FaReddit } from "react-icons/fa";
@@ -8,6 +8,7 @@ import { FaReddit } from "react-icons/fa";
 const CommunityHeader: FC<CommunityHeaderProps> = ({ community }) => {
   const { communityState, handleJoinOrLeaveCommunity, loading } = useCommunityData();
   const isJoined = communityState.userCommunitySnippets.some((com) => com.communityID === community.id);
+  // const communityState = useRecoilValue(communityStateAtom);
 
   return (
     <Flex direction="column" width="100%" height="146px">
@@ -15,7 +16,17 @@ const CommunityHeader: FC<CommunityHeaderProps> = ({ community }) => {
       <Flex justify="center" bg="white" flexGrow="1">
         <Flex width="95%" maxW={pageContentMaxWidth}>
           {community.imageURL ? (
-            <Image src={community.imageURL} alt={community.id} />
+            <Image
+              src={communityState.currentCommunity?.imageURL ?? community.imageURL}
+              alt={community.id}
+              objectFit="cover"
+              borderRadius="full"
+              boxSize="66px"
+              position="relative"
+              top="-3"
+              color="blue.500"
+              border="4px solid white"
+            />
           ) : (
             <Icon
               as={FaReddit}

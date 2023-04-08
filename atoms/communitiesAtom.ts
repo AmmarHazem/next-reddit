@@ -21,6 +21,7 @@ export interface CommunitySnippetModel {
 export interface CommunityState {
   userCommunitySnippets: CommunitySnippetModel[];
   // visitedCommunities
+  currentCommunity?: CommunityModel;
 }
 
 const initState: CommunityState = {

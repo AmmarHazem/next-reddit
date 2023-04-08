@@ -108,8 +108,15 @@ function useCommunityData() {
   );
 
   useEffect(() => {
+    if (!user?.uid) {
+      return setCommunityState((prevValue) => {
+        const newValue = { ...prevValue };
+        newValue.userCommunitySnippets = [];
+        return newValue;
+      });
+    }
     getUserSnippets();
-  }, [getUserSnippets]);
+  }, [getUserSnippets, setCommunityState, user?.uid]);
 
   return {
     communityState,

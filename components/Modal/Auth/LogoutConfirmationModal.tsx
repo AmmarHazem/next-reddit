@@ -1,13 +1,12 @@
-import { communityStateAtom } from "@/atoms/communitiesAtom";
 import logoutConfirmationModalAtom from "@/atoms/logoutConfirmationModalAtom";
 import { auth } from "@/firebase/clientApp";
 import { Button, Flex, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from "@chakra-ui/react";
 import { signOut } from "firebase/auth";
 import { FC } from "react";
-import { useRecoilState, useResetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 
 const LogoutConfirmationModal: FC<LogoutConfirmationModalProps> = () => {
-  const resetCommunityState = useResetRecoilState(communityStateAtom);
+  // const resetCommunityState = useResetRecoilState(communityStateAtom);
   const [logoutConfirmationModalState, setLogoutConfirmationModalState] = useRecoilState(logoutConfirmationModalAtom);
 
   const onClose = () => {
@@ -18,7 +17,7 @@ const LogoutConfirmationModal: FC<LogoutConfirmationModalProps> = () => {
 
   const onLogoutClicked = () => {
     signOut(auth);
-    resetCommunityState();
+    // resetCommunityState();
     onClose();
   };
 

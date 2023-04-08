@@ -37,7 +37,7 @@ const PostImageUpload: FC<PostImageUploadProps> = ({ onSelectImage, setSelectedF
           >
             Upload
           </Button>
-          <input ref={selectedFileRef} type="file" hidden={true} onChange={onSelectImage} />
+          <input ref={selectedFileRef} type="file" accept="image/*" hidden={true} onChange={onSelectImage} />
         </Flex>
       )}
     </Flex>

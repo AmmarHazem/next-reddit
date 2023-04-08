@@ -7,6 +7,7 @@ import { BiPoll } from "react-icons/bi";
 import TabItem from "./TabItem";
 import TextInputs from "./TextInputs";
 import PostImageUpload from "./PostImageUpload";
+import useSelectFile from "@/hooks/useSelectFile";
 import { PostModel } from "@/atoms/postAtom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, firestore, storage } from "@/firebase/clientApp";
@@ -18,9 +19,9 @@ const NewPostForm: FC<NewPostFormProps> = () => {
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState<string>(formTabs[0].title);
   const [textInputs, setTextInputs] = useState({ title: "", post: "" });
-  const [selectedFile, setSelectedFile] = useState<string | undefined>();
   const [loading, setLoading] = useState<boolean>(false);
   const [user] = useAuthState(auth);
+  const { onSelectFile, selectedFile, setSelectedFile } = useSelectFile();
   const toast = useToast();
 
   const handleCreatePost = async () => {
@@ -54,20 +55,7 @@ const NewPostForm: FC<NewPostFormProps> = () => {
     router.back();
   };
 
-  const handleSelectImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.length) return;
-    const reader = new FileReader();
-    reader.readAsDataURL(e.target.files[0]);
-    reader.onload = (readerEvent) => {
-      if (readerEvent.target?.result) {
-        setSelectedFile(readerEvent.target.result as string);
-      }
-    };
-  };
-
   if (!user?.uid) return null;
-
-  // const onTextChange = () => {};
 
   return (
     <Flex direction="column" bg="white" borderRadius="4px" mt={2}>
@@ -102,7 +90,7 @@ const NewPostForm: FC<NewPostFormProps> = () => {
             setSelectedFile={setSelectedFile}
             selectedFile={selectedFile}
             setSelectedTab={setSelectedTab}
-            onSelectImage={handleSelectImage}
+            onSelectImage={onSelectFile}
           />
         )}
       </Flex>
