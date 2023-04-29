@@ -17,6 +17,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import moment from "moment";
+import { useRouter } from "next/router";
 import { FC, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BsChat } from "react-icons/bs";
@@ -33,14 +34,20 @@ const PostListItem: FC<PostListItemProps> = ({ onDelete, onSelect, onVote, post,
   const [loadingImage, setLoadingImage] = useState<boolean>(true);
   const [loadingDelete, setLoadingDelete] = useState<boolean>(false);
   const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<boolean>(false);
+  const isSinglePostPage = !onSelect;
   const taost = useToast();
+  const router = useRouter();
 
-  const handleDeleteClicked = async () => {
+  const handleDeleteClicked = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation();
     setLoadingDelete(true);
     try {
       const success = await onDelete(post);
       if (!success) {
         throw new Error();
+      }
+      if (isSinglePostPage) {
+        router.push(`/r/${post.communityID}`);
       }
     } catch (e) {
       console.log("--- handleDeleteClicked error", e);
@@ -55,20 +62,27 @@ const PostListItem: FC<PostListItemProps> = ({ onDelete, onSelect, onVote, post,
       <Flex
         border="1px solid"
         bg="white"
-        borderColor="gray.300"
-        borderRadius="4"
-        cursor="pointer"
+        borderColor={isSinglePostPage ? "white" : "gray.300"}
+        borderRadius={isSinglePostPage ? "4px 4px 0px 0px" : "4"}
+        cursor={isSinglePostPage ? "unset" : "pointer"}
         _hover={{
-          borderColor: "gray.500",
+          borderColor: isSinglePostPage ? "none" : "gray.500",
         }}
-        onClick={onSelect}
+        onClick={onSelect ? () => onSelect(post) : undefined}
       >
-        <Flex direction="column" align="center" bg="gray.100" p={2} width="40px" borderRadius={4}>
+        <Flex
+          bg={isSinglePostPage ? "none" : "gray.100"}
+          direction="column"
+          align="center"
+          p={2}
+          width="40px"
+          borderRadius={isSinglePostPage ? "0px" : "3px 0px 0px 3px"}
+        >
           <Icon
             as={userVoteValue === 1 ? IoArrowUpCircleSharp : IoArrowUpCircleOutline}
             color={userVoteValue === 1 ? "brand.100" : "gray.400"}
             fontSize="22"
-            onClick={() => onVote(post, 1, post.communityID)}
+            onClick={(e) => onVote(e, post, 1, post.communityID)}
             cursor="pointer"
           />
           <Text fontSize="9pt">{post.voteStatus}</Text>
@@ -76,7 +90,7 @@ const PostListItem: FC<PostListItemProps> = ({ onDelete, onSelect, onVote, post,
             as={userVoteValue === -1 ? IoArrowDownCircleSharp : IoArrowDownCircleOutline}
             color={userVoteValue === -1 ? "#4379ff" : "gray.400"}
             fontSize="22"
-            onClick={() => onVote(post, -1, post.communityID)}
+            onClick={(e) => onVote(e, post, -1, post.communityID)}
             cursor="pointer"
           />
         </Flex>
@@ -150,9 +164,9 @@ const PostListItem: FC<PostListItemProps> = ({ onDelete, onSelect, onVote, post,
               </Button>
               <Button
                 height="36px"
-                onClick={() => {
+                onClick={(e) => {
                   setShowDeleteConfirmationModal(false);
-                  handleDeleteClicked();
+                  handleDeleteClicked(e);
                 }}
               >
                 Yes
@@ -169,9 +183,9 @@ interface PostListItemProps {
   post: PostModel;
   userIsCreator: boolean;
   userVoteValue?: number;
-  onVote: (post: PostModel, vote: number, communityID: string) => void;
+  onVote: (e: React.MouseEvent<SVGElement, MouseEvent>, post: PostModel, vote: number, communityID: string) => void;
   onDelete: (post: PostModel) => Promise<boolean>;
-  onSelect: () => void;
+  onSelect?: (post: PostModel) => void;
 }
 
 export default PostListItem;

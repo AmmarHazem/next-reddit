@@ -1,12 +1,29 @@
 import { communityStateAtom } from "@/atoms/communitiesAtom";
+import AboutCommunity from "@/components/community/AboutCommunity";
 import PageContent from "@/components/Layout/PageContent";
 import NewPostForm from "@/components/posts/NewPostForm";
-import { Box, Text } from "@chakra-ui/react";
+import { getCommunity } from "@/services/community";
+import { Box, Text, useToast } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import { FC } from "react";
-import { useRecoilValue } from "recoil";
+import { useQuery } from "react-query";
+import { useRecoilState, useRecoilValue } from "recoil";
 
 const CreatePost: FC = () => {
-  const { currentCommunity } = useRecoilValue(communityStateAtom);
+  const router = useRouter();
+  const toast = useToast();
+  const [communityState, setCommunityState] = useRecoilState(communityStateAtom);
+
+  useQuery(["community", router.query.communityName], () => getCommunity({ communityID: router.query.communityName as string }), {
+    enabled: !communityState.currentCommunity && typeof router.query.communityName === "string",
+    onSuccess: (community) => {
+      if (!community) return toast({ status: "error", title: "Something went wrong" });
+      setCommunityState((value) => ({ ...value, currentCommunity: community }));
+    },
+    onError: () => {
+      toast({ status: "error", title: "Something went wrong" });
+    },
+  });
 
   return (
     <PageContent>
@@ -16,7 +33,7 @@ const CreatePost: FC = () => {
         </Box>
         <NewPostForm />
       </>
-      <>Right Content</>
+      <>{communityState.currentCommunity && <AboutCommunity community={communityState.currentCommunity} />}</>
     </PageContent>
   );
 };

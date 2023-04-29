@@ -9,15 +9,29 @@ import { deleteObject, ref } from "firebase/storage";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCallback, useEffect } from "react";
 import { authModalStateAtom } from "@/atoms/authModalAtom";
+import { useRouter } from "next/router";
 
-function usePostsList(community: CommunityModel) {
+function usePostsList({ community, post }: { community: CommunityModel | null; post: PostModel | null }) {
   const toast = useToast();
+  const router = useRouter();
   const [user] = useAuthState(auth);
   const [postsState, setPostsState] = useRecoilState(postAtom);
   const setAuthModalState = useSetRecoilState(authModalStateAtom);
+  const setCommunityState = useSetRecoilState(communityStateAtom);
   const currentCommunity = useRecoilValue(communityStateAtom).currentCommunity;
 
-  const onVote = async (post: PostModel, vote: number, communityID: string) => {
+  useEffect(() => {
+    if (!post) return;
+    setPostsState((prevValue) => ({ ...prevValue, selectedPost: post }));
+  }, [post, setPostsState]);
+
+  useEffect(() => {
+    if (!community) return;
+    setCommunityState((prev) => ({ ...prev, currentCommunity: community }));
+  }, [community, setCommunityState]);
+
+  const onVote = async (e: React.MouseEvent<SVGElement, MouseEvent>, post: PostModel, vote: number, communityID: string) => {
+    e.stopPropagation();
     try {
       if (!user?.uid) {
         return setAuthModalState({ open: true, view: "login" });
@@ -51,7 +65,7 @@ function usePostsList(community: CommunityModel) {
         }
       } else {
         const postVoteRef = doc(collection(firestore, "users", user.uid, "postVotes"));
-        const newVote: PostVoteModel = { id: postVoteRef.id, postID: post.id!, communityID: community.id, voteValue: vote };
+        const newVote: PostVoteModel = { id: postVoteRef.id, postID: post.id!, communityID: communityID, voteValue: vote };
         batch.set(postVoteRef, newVote);
         updatedPost.voteStatus = voteStatus + vote;
         updatedPostsState.postVotes.push(newVote);
@@ -65,6 +79,9 @@ function usePostsList(community: CommunityModel) {
         }
         return p;
       });
+      if (postsState.selectedPost?.id === updatedPost.id) {
+        updatedPostsState.selectedPost = updatedPost;
+      }
       setPostsState(updatedPostsState);
     } catch (error) {
       console.log("--- onVote error", error);
@@ -72,7 +89,15 @@ function usePostsList(community: CommunityModel) {
     }
   };
 
-  const onSelectPost = () => {};
+  const onSelectPost = (post: PostModel) => {
+    if (!community?.id) return;
+    setPostsState((prevValue) => {
+      const newValue: PostState = { ...prevValue };
+      newValue.selectedPost = post;
+      return newValue;
+    });
+    router.push(`/r/${community.id}/comments/${post.id}`);
+  };
 
   const onDeletePost: (post: PostModel) => Promise<boolean> = async (deletePost) => {
     try {
@@ -96,7 +121,7 @@ function usePostsList(community: CommunityModel) {
     }
   };
 
-  const postsQuery = useQuery(["community", community.id], getCommunityPosts, {
+  const postsQuery = useQuery(["community", community?.id], getCommunityPosts, {
     onError: () => toast({ status: "error", title: "Something went wrong" }),
     onSuccess: (res) => {
       if (res) {
@@ -148,7 +173,9 @@ function usePostsList(community: CommunityModel) {
   return { postsQuery, postState: postsState, setPostState: setPostsState, onVote, onSelectPost, onDeletePost };
 }
 
-async function getCommunityPosts(queryContext: QueryFunctionContext<[string, string], any>): Promise<PostModel[] | null> {
+async function getCommunityPosts(
+  queryContext: QueryFunctionContext<[string, string | undefined], any>
+): Promise<PostModel[] | null> {
   try {
     const postsQuery = query(
       collection(firestore, "posts"),
