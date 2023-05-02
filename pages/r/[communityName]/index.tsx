@@ -8,7 +8,7 @@ import PageContent from "@/components/Layout/PageContent";
 import CommunityHeader from "./CommunityHeader";
 import CommunityNotFound from "./CommunityNotFound";
 import AboutCommunity from "@/components/community/AboutCommunity";
-import { getCommunity } from "@/services/community";
+import { getCommunity } from "@/services/communityServices";
 
 const CommunityPage: FC<CommunityPageProps> = ({ community }) => {
   const setCommunityState = useSetRecoilState(communityStateAtom);

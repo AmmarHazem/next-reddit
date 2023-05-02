@@ -2,7 +2,7 @@ import { communityStateAtom } from "@/atoms/communitiesAtom";
 import AboutCommunity from "@/components/community/AboutCommunity";
 import PageContent from "@/components/Layout/PageContent";
 import NewPostForm from "@/components/posts/NewPostForm";
-import { getCommunity } from "@/services/community";
+import { getCommunity } from "@/services/communityServices";
 import { Box, Text, useToast } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { FC } from "react";
