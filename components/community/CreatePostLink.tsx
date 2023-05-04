@@ -1,3 +1,4 @@
+import useDirectory from "@/hooks/useDirectory";
 import { Flex, Icon, Input } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
@@ -10,14 +11,15 @@ type CreatePostProps = {};
 
 const CreatePostLink: React.FC<CreatePostProps> = () => {
   const router = useRouter();
-  //   const { toggleMenuOpen } = useDirectory();
+  const { toggleMenuOpen } = useDirectory();
 
   const onClick = () => {
     // Could check for user to open auth modal before redirecting to submit
     const { communityName } = router.query;
     if (communityName) {
       router.push(`/r/${communityName}/submit`);
-      return;
+    } else {
+      toggleMenuOpen();
     }
     // Open directory menu to select community to post to
     // toggleMenuOpen();

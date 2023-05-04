@@ -3,15 +3,14 @@ import { communityStateAtom, CommunityModel, CommunitySnippetModel } from "@/ato
 import { auth, firestore } from "@/firebase/clientApp";
 import { useToast } from "@chakra-ui/react";
 import { collection, doc, getDocs, increment, writeBatch } from "firebase/firestore";
-import { use, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRecoilState, useSetRecoilState } from "recoil";
 
 function useCommunityData() {
-  const [communityState, setCommunityState] = useRecoilState(communityStateAtom);
   const setAuthModalState = useSetRecoilState(authModalStateAtom);
+  const [communityState, setCommunityState] = useRecoilState(communityStateAtom);
   const [loadingSnippets, setLoadingSnippets] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
   const [user, loadingUser] = useAuthState(auth);
   const toast = useToast();
 
@@ -47,6 +46,7 @@ function useCommunityData() {
         const newSnippet: CommunitySnippetModel = {
           communityID: community.id,
           imageURL: community.imageURL ?? "",
+          isModerator: user?.uid === community.creatorID,
         };
         batch.set(doc(firestore, `users/${user?.uid}/communitySnippets`, community.id), newSnippet);
         batch.update(doc(firestore, "communities", community.id), { numberOfMembers: increment(1) });
@@ -124,7 +124,6 @@ function useCommunityData() {
     leaveCommunity,
     handleJoinOrLeaveCommunity,
     loading: loadingSnippets || loadingUser,
-    error,
   };
 }
 

@@ -1,21 +1,34 @@
-import { CommunityModel, communityStateAtom } from "@/atoms/communitiesAtom";
-import { GetServerSidePropsContext } from "next";
-import { FC, useEffect } from "react";
-import { useSetRecoilState } from "recoil";
 import CreatePostLink from "@/components/community/CreatePostLink";
 import PostsList from "@/components/community/PostsList";
 import PageContent from "@/components/Layout/PageContent";
 import CommunityHeader from "./CommunityHeader";
 import CommunityNotFound from "./CommunityNotFound";
 import AboutCommunity from "@/components/community/AboutCommunity";
+import { CommunityModel, communityStateAtom } from "@/atoms/communitiesAtom";
+import { GetServerSidePropsContext } from "next";
+import { FC, useEffect } from "react";
+import { useSetRecoilState } from "recoil";
 import { getCommunity } from "@/services/communityServices";
+import { directoryMenuAtom } from "@/atoms/directoryMenuAtom";
+import { FaReddit } from "react-icons/fa";
 
 const CommunityPage: FC<CommunityPageProps> = ({ community }) => {
   const setCommunityState = useSetRecoilState(communityStateAtom);
+  const setDirectoryState = useSetRecoilState(directoryMenuAtom);
 
   useEffect(() => {
     setCommunityState((prev) => ({ ...prev, currentCommunity: community }));
-  }, [community, setCommunityState]);
+    setDirectoryState((value) => ({
+      ...value,
+      selectedMenuItem: {
+        communityLink: `/r/${community.id}`,
+        displayText: community.id,
+        iconColor: "blue.500",
+        imageURL: community.imageURL,
+        icon: FaReddit,
+      },
+    }));
+  }, [community, setCommunityState, setDirectoryState]);
 
   if (!community.creatorID) {
     return <CommunityNotFound />;

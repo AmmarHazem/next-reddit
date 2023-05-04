@@ -1,15 +1,18 @@
 import LogoutConfirmationModal from "@/components/Modal/Auth/LogoutConfirmationModal";
+import useDirectory from "@/hooks/useDirectory";
 import { ChevronDownIcon } from "@chakra-ui/icons";
-import { Text, Flex, Icon, Menu, MenuButton, MenuList } from "@chakra-ui/react";
+import { Text, Flex, Icon, Menu, MenuButton, MenuList, Image } from "@chakra-ui/react";
 import { FC } from "react";
-import { TiHome } from "react-icons/ti";
 import Communities from "./Communities";
 
 const Directory: FC = () => {
+  const { directoryState, toggleMenuOpen } = useDirectory();
+
   return (
     <>
-      <Menu>
+      <Menu isOpen={directoryState.isOpen}>
         <MenuButton
+          onClick={toggleMenuOpen}
           mr={2}
           ml={{ base: 0, md: 2 }}
           padding="0px 6px"
@@ -22,10 +25,20 @@ const Directory: FC = () => {
             gap={{ base: "4px", md: "8px" }}
             align="center"
           >
-            <Icon fontSize={24} as={TiHome} />
+            {directoryState.selectedMenuItem.imageURL ? (
+              <Image
+                borderRadius="full"
+                boxSize="24px"
+                objectFit="cover"
+                src={directoryState.selectedMenuItem.imageURL}
+                alt={directoryState.selectedMenuItem.displayText}
+              />
+            ) : (
+              <Icon fontSize={24} as={directoryState.selectedMenuItem.icon} color={directoryState.selectedMenuItem.iconColor} />
+            )}
             <Flex display={{ base: "none", lg: "flex" }}>
               <Text fontWeight={600} fontSize="10pt">
-                Home
+                {directoryState.selectedMenuItem.displayText}
               </Text>
             </Flex>
             <ChevronDownIcon />
