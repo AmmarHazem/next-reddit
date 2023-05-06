@@ -1,20 +1,29 @@
-import useDirectory from "@/hooks/useDirectory";
-import { Flex, Icon, Input } from "@chakra-ui/react";
-import { useRouter } from "next/router";
 import React from "react";
+import useDirectory from "@/hooks/useDirectory";
+import { Flex, Icon, Input, Spinner } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import { BsLink45Deg } from "react-icons/bs";
 import { FaReddit } from "react-icons/fa";
 import { IoImageOutline } from "react-icons/io5";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/firebase/clientApp";
+import { useSetRecoilState } from "recoil";
+import { authModalStateAtom } from "@/atoms/authModalAtom";
 // import useDirectory from "../../hooks/useDirectory";
 
 type CreatePostProps = {};
 
 const CreatePostLink: React.FC<CreatePostProps> = () => {
   const router = useRouter();
+  const [user, loadingAuthState] = useAuthState(auth);
   const { toggleMenuOpen } = useDirectory();
+  const authModalState = useSetRecoilState(authModalStateAtom);
 
   const onClick = () => {
-    // Could check for user to open auth modal before redirecting to submit
+    if (loadingAuthState) return;
+    if (!user?.uid) {
+      return authModalState((value) => ({ ...value, open: true }));
+    }
     const { communityName } = router.query;
     if (communityName) {
       router.push(`/r/${communityName}/submit`);
@@ -37,6 +46,11 @@ const CreatePostLink: React.FC<CreatePostProps> = () => {
       p={2}
       mb={4}
     >
+      {loadingAuthState && (
+        <div style={{ width: "50px", height: "50px", display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <Spinner />
+        </div>
+      )}
       <Icon as={FaReddit} fontSize={36} color="gray.300" mr={4} />
       <Input
         placeholder="Create Post"

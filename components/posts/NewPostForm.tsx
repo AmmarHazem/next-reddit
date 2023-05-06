@@ -1,13 +1,13 @@
+import TabItem from "./TabItem";
+import TextInputs from "./TextInputs";
+import PostImageUpload from "./PostImageUpload";
+import useSelectFile from "@/hooks/useSelectFile";
 import { Flex, useToast } from "@chakra-ui/react";
 import { FC, useState } from "react";
 import { IconType } from "react-icons";
 import { BsLink45Deg, BsMic } from "react-icons/bs";
 import { IoDocumentText, IoImageOutline } from "react-icons/io5";
 import { BiPoll } from "react-icons/bi";
-import TabItem from "./TabItem";
-import TextInputs from "./TextInputs";
-import PostImageUpload from "./PostImageUpload";
-import useSelectFile from "@/hooks/useSelectFile";
 import { PostModel } from "@/atoms/postAtom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, firestore, storage } from "@/firebase/clientApp";
@@ -15,7 +15,7 @@ import { useRouter } from "next/router";
 import { addDoc, collection, serverTimestamp, Timestamp, updateDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
 
-const NewPostForm: FC<NewPostFormProps> = () => {
+const NewPostForm: FC<NewPostFormProps> = ({ communityImageURL }) => {
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState<string>(formTabs[0].title);
   const [textInputs, setTextInputs] = useState({ title: "", post: "" });
@@ -36,6 +36,7 @@ const NewPostForm: FC<NewPostFormProps> = () => {
       numberOfComments: 0,
       voteStatus: 0,
       createdAt: serverTimestamp() as Timestamp,
+      communityImageURL: communityImageURL || "",
     };
     setLoading(true);
     try {
@@ -123,6 +124,8 @@ const formTabs: NewPostTabItemType[] = [
 
 export type NewPostTabItemType = { title: string; icon: IconType };
 
-interface NewPostFormProps {}
+interface NewPostFormProps {
+  communityImageURL?: string;
+}
 
 export default NewPostForm;

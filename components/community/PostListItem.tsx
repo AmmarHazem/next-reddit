@@ -17,10 +17,12 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import moment from "moment";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
-import { BsChat } from "react-icons/bs";
+import { BsChat, BsDot } from "react-icons/bs";
+import { FaReddit } from "react-icons/fa";
 import {
   IoArrowDownCircleOutline,
   IoArrowDownCircleSharp,
@@ -30,7 +32,7 @@ import {
   IoBookmarkOutline,
 } from "react-icons/io5";
 
-const PostListItem: FC<PostListItemProps> = ({ onDelete, onSelect, onVote, post, userIsCreator, userVoteValue }) => {
+const PostListItem: FC<PostListItemProps> = ({ onDelete, onSelect, onVote, homePage, post, userIsCreator, userVoteValue }) => {
   const [loadingImage, setLoadingImage] = useState<boolean>(true);
   const [loadingDelete, setLoadingDelete] = useState<boolean>(false);
   const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<boolean>(false);
@@ -97,6 +99,25 @@ const PostListItem: FC<PostListItemProps> = ({ onDelete, onSelect, onVote, post,
         <Flex direction="column" width="100%">
           <Stack spacing={1} p="10px">
             <Stack direction="row" spacing={0.6} align="center" fontSize="9pt">
+              {homePage && (
+                <>
+                  {post.imageURL ? (
+                    <Image src={post.imageURL} alt={post.communityID} borderRadius="full" boxSize="18px" mr={2} />
+                  ) : (
+                    <Icon as={FaReddit} fontSize="18pt" color="blue.500" mr={1} />
+                  )}
+                  <Link href={`/r/${post.communityID}`}>
+                    <Text
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                      fontWeight={700}
+                      _hover={{ textDecoration: "underline" }}
+                    >{`r/${post.communityID}`}</Text>
+                  </Link>
+                  <Icon as={BsDot} color="gray.500" />
+                </>
+              )}
               <Text>
                 Posted by u/{post.creatorDisplayName} {moment(post.createdAt.seconds * 1000).fromNow()}
               </Text>
@@ -183,6 +204,7 @@ interface PostListItemProps {
   post: PostModel;
   userIsCreator: boolean;
   userVoteValue?: number;
+  homePage?: boolean;
   onVote: (e: React.MouseEvent<SVGElement, MouseEvent>, post: PostModel, vote: number, communityID: string) => void;
   onDelete: (post: PostModel) => Promise<boolean>;
   onSelect?: (post: PostModel) => void;

@@ -122,7 +122,8 @@ function usePostsList({ community, post }: { community: CommunityModel | null; p
     }
   };
 
-  const postsQuery = useQuery(["community", community?.id], getCommunityPosts, {
+  const postsQuery = useQuery(["community", community?.id ?? ""], getCommunityPosts, {
+    enabled: !!community?.id,
     onError: () => toast({ status: "error", title: "Something went wrong" }),
     onSuccess: (res) => {
       if (res) {

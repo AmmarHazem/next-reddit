@@ -7,7 +7,7 @@ import { Box, Text, useToast } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { FC } from "react";
 import { useQuery } from "react-query";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 
 const CreatePost: FC = () => {
   const router = useRouter();
@@ -31,7 +31,7 @@ const CreatePost: FC = () => {
         <Box p="14px 0px" borderBottom="1px solid" borderColor="white">
           <Text>Create a post</Text>
         </Box>
-        <NewPostForm />
+        <NewPostForm communityImageURL={communityState.currentCommunity?.imageURL} />
       </>
       <>{communityState.currentCommunity && <AboutCommunity community={communityState.currentCommunity} />}</>
     </PageContent>

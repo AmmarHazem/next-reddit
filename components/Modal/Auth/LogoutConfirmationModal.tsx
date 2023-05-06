@@ -2,11 +2,13 @@ import logoutConfirmationModalAtom from "@/atoms/logoutConfirmationModalAtom";
 import { auth } from "@/firebase/clientApp";
 import { Button, Flex, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from "@chakra-ui/react";
 import { signOut } from "firebase/auth";
+import { useRouter } from "next/router";
 import { FC } from "react";
 import { useRecoilState } from "recoil";
 
 const LogoutConfirmationModal: FC<LogoutConfirmationModalProps> = () => {
   // const resetCommunityState = useResetRecoilState(communityStateAtom);
+  const router = useRouter();
   const [logoutConfirmationModalState, setLogoutConfirmationModalState] = useRecoilState(logoutConfirmationModalAtom);
 
   const onClose = () => {
@@ -18,6 +20,7 @@ const LogoutConfirmationModal: FC<LogoutConfirmationModalProps> = () => {
   const onLogoutClicked = () => {
     signOut(auth);
     // resetCommunityState();
+    router.replace("/");
     onClose();
   };
 

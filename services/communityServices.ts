@@ -1,13 +1,34 @@
-import { CommunityModel } from "@/atoms/communitiesAtom";
+import { CommunityModel, CommunitySnippetModel } from "@/atoms/communitiesAtom";
 import { PostModel } from "@/atoms/postAtom";
 import { firestore } from "@/firebase/clientApp";
-import { collection, doc, getDoc, getDocs, orderBy, query, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, limit, orderBy, query, where } from "firebase/firestore";
 import { QueryFunctionContext } from "react-query";
 import safeJsonStringify from "safe-json-stringify";
 
-export async function getCommunityPosts(
-  queryContext: QueryFunctionContext<[string, string | undefined], any>
-): Promise<PostModel[] | null> {
+export async function getHighestNumberOfMemebersCommunities(): Promise<CommunityModel[] | null> {
+  try {
+    const communityQuery = query(collection(firestore, "communities"), orderBy("numberOfMembers", "desc"), limit(5));
+    const communitiesDocs = await getDocs(communityQuery);
+    const communities = communitiesDocs.docs.map<CommunityModel>((doc) => ({ id: doc.id, ...doc.data() } as CommunityModel));
+    return communities;
+  } catch (error) {
+    console.log("--- getCommunityRecommendations error", error);
+    return null;
+  }
+}
+
+export async function getUserCommunitySnippets({ userID }: { userID: string }): Promise<CommunitySnippetModel[] | null> {
+  try {
+    const snippetDocs = await getDocs(collection(firestore, `users/${userID}/communitySnippets`));
+    const snippets = snippetDocs.docs.map<CommunitySnippetModel>((doc) => doc.data() as CommunitySnippetModel);
+    return snippets;
+  } catch (error) {
+    console.log("--- getUserCommunitySnippets error", error);
+    return null;
+  }
+}
+
+export async function getCommunityPosts(queryContext: QueryFunctionContext<[string, string], any>): Promise<PostModel[] | null> {
   try {
     const postsQuery = query(
       collection(firestore, "posts"),
@@ -24,7 +45,7 @@ export async function getCommunityPosts(
     // console.log("--- posts", posts);
     return posts;
   } catch (e) {
-    console.log("--- getCommunityPosts error", e);
+    console.log("--- getCommunityPosts error", e, queryContext.queryKey);
     return null;
   }
 }

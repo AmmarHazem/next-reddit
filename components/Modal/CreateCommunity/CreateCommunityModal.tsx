@@ -1,5 +1,6 @@
 import { CommunityType } from "@/atoms/communitiesAtom";
 import { auth, firestore } from "@/firebase/clientApp";
+import useDirectory from "@/hooks/useDirectory";
 import {
   Modal,
   ModalOverlay,
@@ -19,6 +20,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { doc, getDoc, runTransaction, serverTimestamp, setDoc } from "firebase/firestore";
+import { useRouter } from "next/router";
 import { ChangeEvent, FC, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { BsFillEyeFill, BsFillPersonFill } from "react-icons/bs";
@@ -31,7 +33,9 @@ const CreateCommunityModal: FC<CreateCommunityModalProps> = ({ open, onClose }) 
   const [error, setError] = useState<string>("");
   const [user] = useAuthState(auth);
   const [loading, setLoading] = useState<boolean>(false);
+  const { toggleMenuOpen } = useDirectory();
   const toast = useToast();
+  const router = useRouter();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.value.length > 21) return;
@@ -68,6 +72,9 @@ const CreateCommunityModal: FC<CreateCommunityModalProps> = ({ open, onClose }) 
           isModerator: true,
         });
       });
+      router.push(`/r/${communityName}`);
+      onClose();
+      toggleMenuOpen();
     } catch (e) {
       console.log("--- handleCreateCommunity error", e);
       toast({ status: "error", title: "Something went wrong" });
