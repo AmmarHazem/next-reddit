@@ -1,8 +1,8 @@
 import CreatePostLink from "@/components/community/CreatePostLink";
 import PostsList from "@/components/community/PostsList";
 import PageContent from "@/components/Layout/PageContent";
-import CommunityHeader from "./CommunityHeader";
-import CommunityNotFound from "./CommunityNotFound";
+import CommunityHeader from "../../../components/community/CommunityHeader";
+import CommunityNotFound from "../../../components/community/CommunityNotFound";
 import AboutCommunity from "@/components/community/AboutCommunity";
 import { CommunityModel, communityStateAtom } from "@/atoms/communitiesAtom";
 import { GetServerSidePropsContext } from "next";
@@ -17,11 +17,12 @@ const CommunityPage: FC<CommunityPageProps> = ({ community }) => {
   const setDirectoryState = useSetRecoilState(directoryMenuAtom);
 
   useEffect(() => {
+    if (!community) return;
     setCommunityState((prev) => ({ ...prev, currentCommunity: community }));
     setDirectoryState((value) => ({
       ...value,
       selectedMenuItem: {
-        communityLink: `/r/${community.id}`,
+        communityLink: `/r/${community?.id}`,
         displayText: community.id,
         iconColor: "blue.500",
         imageURL: community.imageURL,
@@ -30,7 +31,7 @@ const CommunityPage: FC<CommunityPageProps> = ({ community }) => {
     }));
   }, [community, setCommunityState, setDirectoryState]);
 
-  if (!community.creatorID) {
+  if (!community?.creatorID) {
     return <CommunityNotFound />;
   }
 
@@ -51,12 +52,12 @@ const CommunityPage: FC<CommunityPageProps> = ({ community }) => {
 };
 
 interface CommunityPageProps {
-  community: CommunityModel;
+  community?: CommunityModel;
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext): Promise<{ props: CommunityPageProps } | null> {
+export async function getServerSideProps(context: GetServerSidePropsContext): Promise<{ props: CommunityPageProps }> {
   const community = await getCommunity({ communityID: context.query.communityName as string });
-  if (!community) return null;
+  if (!community) return { props: {} };
   return {
     props: {
       community: community,
